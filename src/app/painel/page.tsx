@@ -7,6 +7,8 @@ import { criarClienteServidor } from "@/lib/supabase/servidor";
 type ProcessoPainel = {
   id: string;
   numero: string;
+  classe: string;
+  juizo: string;
   reu: string;
   imputacao: string;
   movimentacoes: Array<{ publicada_em: string }>;
@@ -17,7 +19,10 @@ export default async function Painel() {
   const supabase = await criarClienteServidor();
 
   const [{ data: processos }, { data: acessos }] = await Promise.all([
-    supabase.from("processos").select("id, numero, reu, imputacao, movimentacoes(publicada_em)").order("criado_em"),
+    supabase
+      .from("processos")
+      .select("id, numero, classe, juizo, reu, imputacao, movimentacoes(publicada_em)")
+      .order("criado_em"),
     supabase.from("acessos").select("processo_id, ultimo_acesso_em").eq("advogado_id", perfil.id),
   ]);
 
@@ -29,14 +34,16 @@ export default async function Painel() {
   return (
     <>
       <Cabecalho perfil={perfil} inicio="/painel" />
-      <main className="mx-auto w-full max-w-4xl px-4 py-6">
-        <h1 className="mb-4 text-xl font-semibold">Meus processos</h1>
+      <main className="mx-auto grid w-full max-w-6xl content-start gap-6 px-4 py-8 sm:py-10">
+        <div className="grid max-w-4xl gap-6">
+        <h1 className="font-serif text-3xl font-semibold">Meus processos</h1>
         {lista.length === 0 ? (
-          <p className="rounded-lg border border-neutral-200 bg-white p-4 text-neutral-700">
-            Você ainda não foi constituído em nenhum processo.
+          <p className="rounded-2xl border border-dashed border-linha bg-folha px-6 py-8 text-tinta-suave">
+            Você ainda não foi constituído em nenhum processo. Quando a coordenação vincular você à sua equipe, o
+            processo aparece aqui.
           </p>
         ) : (
-          <ul className="grid gap-3">
+          <ul className="grid gap-4">
             {lista.map((p) => {
               const novidades = contarNovidades(p.movimentacoes, ultimoAcesso.get(p.id) ?? null);
               return (
@@ -45,25 +52,29 @@ export default async function Painel() {
                   <Link
                     href={`/processos/${p.id}`}
                     prefetch={false}
-                    className="block rounded-lg border border-neutral-200 bg-white p-4 hover:border-[#1d2b45]"
+                    className="grid gap-4 rounded-2xl border border-linha bg-folha px-5 py-5 transition-colors hover:border-tinta/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-carimbo sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:px-7"
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-mono font-semibold break-all">{p.numero}</span>
-                      {novidades > 0 && (
-                        <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">
-                          {novidades === 1 ? "1 novidade" : `${novidades} novidades`}
-                        </span>
-                      )}
+                    <div className="min-w-0">
+                      <p className="text-sm text-tinta-suave">{p.classe}</p>
+                      <p className="mt-0.5 font-serif text-xl font-semibold whitespace-nowrap tabular-nums sm:text-2xl">{p.numero}</p>
+                      <p className="mt-1 text-tinta-suave">{p.juizo}</p>
+                      <p className="mt-3 text-tinta/90">{p.reu}</p>
+                      <p className="text-sm text-tinta-suave">{p.imputacao}</p>
                     </div>
-                    <p className="mt-1 text-sm text-neutral-700">
-                      Réu: {p.reu} · {p.imputacao}
-                    </p>
+                    {novidades > 0 ? (
+                      <span className="w-fit rounded-full bg-lacre px-3 py-1 text-sm font-semibold text-white">
+                        {novidades === 1 ? "1 novidade" : `${novidades} novidades`}
+                      </span>
+                    ) : (
+                      <span className="w-fit text-sm text-tinta-suave">Sem novidades</span>
+                    )}
                   </Link>
                 </li>
               );
             })}
           </ul>
         )}
+        </div>
       </main>
     </>
   );

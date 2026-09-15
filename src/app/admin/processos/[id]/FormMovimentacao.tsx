@@ -136,20 +136,20 @@ export function FormMovimentacao({ processoId, hoje }: { processoId: string; hoj
             {arquivos.map((arquivo, i) => (
               <li
                 key={`${arquivo.name}-${arquivo.size}-${arquivo.lastModified}-${i}`}
-                className="flex flex-wrap items-center gap-2 rounded border border-neutral-200 bg-neutral-50 px-2.5 py-1.5 text-sm"
+                className="flex flex-wrap items-center gap-2 rounded-lg border border-linha bg-papel px-2.5 py-1.5 text-sm"
               >
-                <span className="font-mono text-neutral-500">{i + 1}.</span>
+                <span className="font-serif text-tinta-suave tabular-nums">{i + 1}.</span>
                 <span className="min-w-0 flex-1 break-all">{arquivo.name}</span>
-                <span className="text-xs text-neutral-500">
+                <span className="text-xs text-tinta-suave">
                   {i === 0 ? "peça principal · " : "anexo · "}
                   {tamanho(arquivo.size)}
                 </span>
                 {i > 0 && (
-                  <button type="button" onClick={() => subir(i)} className="text-xs text-[#1d2b45] underline">
+                  <button type="button" onClick={() => subir(i)} className="text-xs text-carimbo underline">
                     Subir
                   </button>
                 )}
-                <button type="button" onClick={() => remover(i)} className="text-xs text-red-700 underline">
+                <button type="button" onClick={() => remover(i)} className="text-xs text-lacre underline">
                   Remover
                 </button>
               </li>

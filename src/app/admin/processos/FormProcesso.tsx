@@ -34,7 +34,7 @@ export function FormProcesso({
       ))}
       <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
         <BotaoEnviar enviando="Salvando…">{rotulo}</BotaoEnviar>
-        {estado.ok && <span className="text-sm text-green-700">{estado.ok}</span>}
+        {estado.ok && <span className="text-sm text-certidao">{estado.ok}</span>}
       </div>
       {estado.erro && (
         <Alert variant="destructive" className="sm:col-span-2">

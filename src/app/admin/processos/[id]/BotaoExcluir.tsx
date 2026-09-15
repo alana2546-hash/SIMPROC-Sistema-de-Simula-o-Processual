@@ -11,7 +11,7 @@ export function BotaoExcluir({ processoId, movimentacaoId }: { processoId: strin
 
   if (!confirmando) {
     return (
-      <button type="button" onClick={() => setConfirmando(true)} className="text-xs text-red-700 underline">
+      <button type="button" onClick={() => setConfirmando(true)} className="text-xs text-lacre underline">
         Excluir
       </button>
     );
@@ -27,14 +27,14 @@ export function BotaoExcluir({ processoId, movimentacaoId }: { processoId: strin
             if (r.erro) setErro(r.erro);
           })
         }
-        className="rounded bg-red-700 px-2 py-0.5 font-medium text-white disabled:opacity-60"
+        className="rounded bg-lacre px-2 py-0.5 font-medium text-white disabled:opacity-60"
       >
         {pendente ? "Excluindo…" : "Confirmar exclusão"}
       </button>
       <button type="button" onClick={() => setConfirmando(false)} className="underline">
         Cancelar
       </button>
-      {erro && <span className="text-red-700">{erro}</span>}
+      {erro && <span className="text-lacre">{erro}</span>}
     </span>
   );
 }

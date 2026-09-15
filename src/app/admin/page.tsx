@@ -10,11 +10,17 @@ export default async function InscricoesPendentes() {
     .eq("papel", "aluno")
     .eq("status", "pendente")
     .order("criado_em");
+  const perfis = (data ?? []) as Perfil[];
 
   return (
-    <>
-      <h1 className="text-xl font-semibold">Inscrições pendentes</h1>
-      <ListaAdvogados perfis={(data ?? []) as Perfil[]} vazio="Nenhuma inscrição aguardando análise." />
-    </>
+    <div className="grid max-w-4xl gap-5">
+      <div>
+        <h1 className="font-serif text-3xl font-semibold">Inscrições pendentes</h1>
+        <p className="mt-1 text-tinta-suave">
+          Ao aprovar, o aluno recebe o número na OAB/SIMPROC e pode ser constituído em um processo.
+        </p>
+      </div>
+      <ListaAdvogados perfis={perfis} vazio="Nenhum pedido de inscrição aguardando análise." />
+    </div>
   );
 }
