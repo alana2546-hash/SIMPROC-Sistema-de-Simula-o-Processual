@@ -84,6 +84,10 @@ alter table public.acessos enable row level security;
 -- Colunas sensíveis (status, papel, oab_numero, publicada_em...) ficam
 -- fora dos GRANTs de UPDATE: nem a API direta consegue alterá-las.
 -- ============================================================
+-- O projeto é criado com "expor novas tabelas automaticamente" DESLIGADO:
+-- todo acesso da API é concedido explicitamente aqui.
+grant usage on schema public to anon, authenticated;
+
 revoke all on public.perfis, public.processos, public.processo_advogados,
   public.movimentacoes, public.anexos, public.acessos from anon, authenticated;
 revoke all on sequence public.oab_numero_seq, public.processo_seq from anon, authenticated;
