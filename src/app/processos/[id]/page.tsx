@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Cabecalho } from "@/components/Cabecalho";
-import { CabecalhoProcesso } from "@/components/processo/CabecalhoProcesso";
-import { CartaoMovimentacao } from "@/components/processo/CartaoMovimentacao";
-import { PrazosEmAberto } from "@/components/processo/PrazosEmAberto";
+import { CapaProcesso } from "@/components/processo/CapaProcesso";
+import { FaixaPrazos } from "@/components/processo/FaixaPrazos";
+import { LinhaDoTempo } from "@/components/processo/LinhaDoTempo";
+import { IndiceDocumentos, SecaoAdvogados, SecaoPartes } from "@/components/processo/PainelProcesso";
 import { exigirAdvogado } from "@/lib/auth/sessao";
 import { dataEmBrasilia } from "@/lib/dominio/datas";
+import { numerarEventos, ordenarRecentes, ultimaDecisao } from "@/lib/dominio/linha-do-tempo";
 import { ehNova } from "@/lib/dominio/novidades";
 import { criarClienteServidor } from "@/lib/supabase/servidor";
 import type { Movimentacao, Processo } from "@/lib/tipos";
@@ -33,31 +35,35 @@ export default async function PaginaProcesso({ params }: PageProps<"/processos/[
   ]);
   if (!processo) notFound();
 
-  const movs = (movimentacoes ?? []) as Movimentacao[];
+  const movs = ordenarRecentes((movimentacoes ?? []) as Movimentacao[]);
+  const numeros = numerarEventos(movs);
+  const decisao = ultimaDecisao(movs);
   const ultimoAcesso = (anterior as string | null) ?? null;
-  const hoje = dataEmBrasilia(new Date());
+  const novas = movs.filter((m) => ehNova(m.publicada_em, ultimoAcesso)).map((m) => m.id);
 
   return (
     <>
       <Cabecalho perfil={perfil} inicio="/painel" />
-      <main className="mx-auto grid w-full max-w-4xl gap-4 px-4 py-6">
-        <Link href="/painel" className="text-sm text-[#1d2b45] underline">
-          ← Meus processos
+      <main className="mx-auto grid w-full max-w-6xl gap-5 px-4 py-6 sm:py-8">
+        <Link href="/painel" className="w-fit text-sm text-carimbo underline-offset-2 hover:underline">
+          Voltar para meus processos
         </Link>
-        <CabecalhoProcesso processo={processo as Processo} advogados={advogados ?? []} />
-        <PrazosEmAberto movimentacoes={movs} hoje={hoje} />
-        <section className="grid gap-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-600">Movimentações</h2>
-          {movs.length === 0 ? (
-            <p className="rounded-lg border border-neutral-200 bg-white p-4 text-neutral-700">
-              Nenhuma movimentação até o momento.
-            </p>
-          ) : (
-            movs.map((m) => (
-              <CartaoMovimentacao key={m.id} movimentacao={m} nova={ehNova(m.publicada_em, ultimoAcesso)} />
-            ))
-          )}
-        </section>
+        <CapaProcesso
+          processo={processo as Processo}
+          totalMovimentacoes={movs.length}
+          totalDocumentos={movs.reduce((n, m) => n + m.anexos.length, 0)}
+          ultimaDecisao={decisao && { texto: decisao.texto, data: decisao.data, evento: numeros[decisao.id] }}
+        />
+        <FaixaPrazos movimentacoes={movs} numeros={numeros} hoje={dataEmBrasilia(new Date())} perspectiva="aluno" />
+
+        <div className="mt-3 grid gap-10 lg:grid-cols-[minmax(0,1fr)_19rem]">
+          <LinhaDoTempo movimentacoes={movs} numeros={numeros} novas={novas} />
+          <aside className="grid content-start gap-7 border-t border-linha pt-7 lg:sticky lg:top-6 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-8">
+            <SecaoPartes processo={processo as Processo} />
+            <SecaoAdvogados advogados={advogados ?? []} />
+            <IndiceDocumentos movimentacoes={movs} numeros={numeros} />
+          </aside>
+        </div>
       </main>
     </>
   );

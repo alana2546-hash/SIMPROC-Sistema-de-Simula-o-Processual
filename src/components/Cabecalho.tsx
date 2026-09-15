@@ -5,11 +5,11 @@ import type { Perfil } from "@/lib/tipos";
 
 export function Cabecalho({ perfil, inicio }: { perfil: Perfil | null; inicio: string }) {
   return (
-    <header className="bg-[#1d2b45] text-white">
-      <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
+    <header className="bg-tinta text-white">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
         <Link href={inicio} className="leading-tight">
-          <span className="block text-lg font-semibold tracking-wide">SIMPROC</span>
-          <span className="block text-xs text-white/70">Sistema de Simulação Processual</span>
+          <span className="block font-serif text-xl font-semibold tracking-wide">SIMPROC</span>
+          <span className="hidden text-xs text-white/70 sm:block">Sistema de Simulação Processual</span>
         </Link>
         {perfil && (
           <div className="flex items-center gap-3 text-sm">

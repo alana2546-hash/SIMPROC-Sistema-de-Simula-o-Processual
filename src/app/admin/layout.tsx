@@ -8,7 +8,7 @@ export default async function LayoutAdmin({ children }: LayoutProps<"/admin">) {
     <>
       <Cabecalho perfil={perfil} inicio="/admin" />
       <nav className="border-b border-neutral-200 bg-white">
-        <div className="mx-auto flex max-w-4xl gap-5 overflow-x-auto px-4 text-sm">
+        <div className="mx-auto flex max-w-6xl gap-5 overflow-x-auto px-4 text-sm">
           {[
             ["/admin", "Inscrições pendentes"],
             ["/admin/advogados", "Advogados"],
@@ -20,7 +20,7 @@ export default async function LayoutAdmin({ children }: LayoutProps<"/admin">) {
           ))}
         </div>
       </nav>
-      <main className="mx-auto grid w-full max-w-4xl gap-4 px-4 py-6">{children}</main>
+      <main className="mx-auto grid w-full max-w-6xl gap-5 px-4 py-6 sm:py-8">{children}</main>
     </>
   );
 }
