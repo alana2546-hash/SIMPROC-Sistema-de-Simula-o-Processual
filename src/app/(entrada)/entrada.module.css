@@ -1,0 +1,1039 @@
+/* Telas de entrada do SIMPROC: login, cadastro e aguardando (layout fornecido pelo Aldemir).
+   Adaptado para CSS Module: sem regras globais (:root, *, html/body) e com as
+   fontes vindas do next/font (--fonte-login-sans / --fonte-login-serif). */
+
+/* ==========================================================
+   BASE
+========================================================== */
+
+.simproc-login {
+  width: 100%;
+  /* cresce com o cartão (o cadastro é mais alto que o login); nunca corta */
+  min-height: max(100vh, 760px);
+
+  display: grid;
+  grid-template-columns: 59% 41%;
+
+  overflow: hidden;
+
+  font-family: var(--fonte-login-sans), "DM Sans", sans-serif;
+  background: #061b3c;
+}
+
+.simproc-login button,
+.simproc-login input {
+  font: inherit;
+}
+
+/* ==========================================================
+   HERO
+========================================================== */
+
+.simproc-hero {
+  position: relative;
+
+  min-width: 0;
+
+  overflow: hidden;
+
+  /*
+    Imagem de fundo: public/images/simproc-login-hero.webp (estátua da Justiça,
+    códigos, notebook, colunas), convertida do PNG original para WebP.
+  */
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(1, 13, 35, 0.96) 0%,
+      rgba(4, 21, 50, 0.88) 38%,
+      rgba(5, 27, 59, 0.68) 72%,
+      rgba(5, 24, 52, 0.72) 100%
+    ),
+    url("/images/simproc-login-hero.webp");
+  background-color: #061b3c;
+  background-position: center;
+  background-size: cover;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(circle at 75% 35%, rgba(38, 111, 255, 0.22), transparent 29%),
+    linear-gradient(180deg, transparent 55%, rgba(0, 10, 30, 0.72) 100%);
+}
+
+.hero-glow {
+  position: absolute;
+
+  width: 500px;
+  height: 500px;
+
+  top: 80px;
+  right: -220px;
+
+  border-radius: 50%;
+
+  background: #1673ff;
+  filter: blur(180px);
+
+  opacity: 0.22;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 3;
+
+  height: 100%;
+
+  padding: clamp(42px, 5.2vw, 88px) clamp(48px, 5vw, 88px);
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================
+   EYEBROW
+========================================================== */
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+
+  gap: 18px;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  letter-spacing: 4px;
+
+  color: #91b8ff;
+
+  margin-bottom: 48px;
+}
+
+.eyebrow-line {
+  width: 34px;
+  height: 2px;
+
+  display: block;
+
+  background: #76a9ff;
+
+  box-shadow: 0 0 10px #2975ff;
+}
+
+/* ==========================================================
+   BRAND
+========================================================== */
+
+.brand {
+  display: flex;
+  align-items: center;
+
+  gap: 26px;
+
+  margin-bottom: 56px;
+}
+
+.brand-name {
+  font-family: var(--fonte-login-serif), "Playfair Display", serif;
+
+  color: white;
+
+  font-size: clamp(38px, 3.5vw, 58px);
+  font-weight: 600;
+
+  line-height: 1;
+}
+
+.brand-subtitle {
+  color: white;
+
+  margin-top: 10px;
+
+  font-size: 14px;
+}
+
+/* ==========================================================
+   COLUMN LOGO
+========================================================== */
+
+.brand-symbol,
+.mini-symbol {
+  position: relative;
+}
+
+.brand-symbol {
+  width: 72px;
+  height: 76px;
+}
+
+.pillar-top,
+.pillar-bottom,
+.mini-top,
+.mini-bottom {
+  position: absolute;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  border-radius: 4px;
+
+  background: linear-gradient(90deg, #d8e5ff, #3f8bff 50%, #0e5df2);
+}
+
+.pillar-top {
+  top: 4px;
+
+  width: 64px;
+  height: 9px;
+}
+
+.pillar-bottom {
+  bottom: 2px;
+
+  width: 60px;
+  height: 8px;
+}
+
+.pillar-columns {
+  position: absolute;
+
+  top: 14px;
+  bottom: 10px;
+
+  left: 16px;
+  right: 16px;
+
+  display: flex;
+  justify-content: space-between;
+}
+
+.pillar-columns span {
+  width: 8px;
+
+  border-radius: 3px;
+
+  background: linear-gradient(180deg, #d9e6ff, #4b8fff 40%, #1769ff);
+}
+
+/* ==========================================================
+   HERO TEXT
+========================================================== */
+
+.hero-copy h1 {
+  margin: 0;
+
+  color: white;
+
+  font-family: var(--fonte-login-serif), "Playfair Display", serif;
+
+  font-weight: 500;
+
+  font-size: clamp(46px, 5vw, 76px);
+  line-height: 0.98;
+
+  letter-spacing: -2px;
+}
+
+.hero-copy h1 span {
+  color: #8db6ff;
+}
+
+.hero-copy h2 {
+  margin: 26px 0 14px;
+
+  font-family: var(--fonte-login-serif), "Playfair Display", serif;
+
+  color: #fff;
+
+  font-size: clamp(28px, 2.4vw, 38px);
+
+  font-weight: 500;
+}
+
+.hero-copy h2 span {
+  color: #8db6ff;
+}
+
+.hero-copy p {
+  color: #b3caf5;
+
+  font-size: clamp(16px, 1.3vw, 21px);
+
+  line-height: 1.47;
+
+  margin: 0;
+
+  max-width: 560px;
+}
+
+/* ==========================================================
+   FEATURES
+========================================================== */
+
+.features {
+  margin-top: 50px;
+
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 24px;
+
+  max-width: 540px;
+}
+
+.feature {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+
+  color: white;
+
+  font-size: 13px;
+}
+
+.feature-icon {
+  width: 62px;
+  height: 62px;
+
+  border: 1px solid rgba(58, 133, 255, 0.78);
+
+  border-radius: 13px;
+
+  display: grid;
+  place-items: center;
+
+  color: #75aaff;
+
+  background: linear-gradient(145deg, rgba(23, 92, 186, 0.24), rgba(3, 26, 62, 0.64));
+
+  box-shadow:
+    0 0 30px rgba(31, 108, 255, 0.12),
+    inset 0 0 15px rgba(37, 109, 255, 0.08);
+}
+
+.feature strong,
+.feature span {
+  display: block;
+}
+
+.feature strong {
+  font-weight: 500;
+}
+
+.feature span {
+  color: #d8e5ff;
+
+  margin-top: 2px;
+}
+
+/* ==========================================================
+   RIGHT SIDE
+========================================================== */
+
+.login-side {
+  position: relative;
+
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 90px 8%;
+
+  overflow: hidden;
+
+  background: radial-gradient(circle at 60% 42%, #ffffff 0%, #edf4ff 42%, #cedefa 74%, #8cb7f1 145%);
+}
+
+/* ==========================================================
+   CURVED LINES
+========================================================== */
+
+.background-orbit {
+  position: absolute;
+
+  width: 850px;
+  height: 850px;
+
+  border: 1px solid rgba(54, 131, 255, 0.34);
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+.orbit-one {
+  left: 55%;
+  top: 4%;
+}
+
+.orbit-two {
+  left: 60%;
+  top: 14%;
+
+  width: 700px;
+  height: 700px;
+}
+
+.orbit-three {
+  left: 66%;
+  top: 28%;
+
+  width: 520px;
+  height: 520px;
+}
+
+/* ==========================================================
+   LOGIN CARD
+========================================================== */
+
+.login-card {
+  position: relative;
+  z-index: 5;
+
+  width: min(100%, 505px);
+
+  padding: clamp(38px, 4vw, 56px) clamp(34px, 3.5vw, 52px) 38px;
+
+  border-radius: 31px;
+
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.985), rgba(246, 249, 255, 0.96));
+
+  border: 1px solid rgba(76, 137, 244, 0.42);
+
+  box-shadow:
+    0 34px 70px rgba(14, 50, 106, 0.23),
+    0 0 0 1px rgba(255, 255, 255, 0.72) inset,
+    0 0 42px rgba(57, 131, 255, 0.18);
+}
+
+.card-brand {
+  display: flex;
+  align-items: center;
+
+  gap: 19px;
+
+  margin-bottom: 38px;
+}
+
+.card-brand strong {
+  display: block;
+
+  color: #11213d;
+
+  font-family: var(--fonte-login-serif), "Playfair Display", serif;
+
+  font-size: 37px;
+  line-height: 1;
+}
+
+.card-brand > div:last-child > span {
+  display: block;
+
+  color: #486083;
+
+  font-size: 13px;
+
+  margin-top: 6px;
+}
+
+/* ==========================================================
+   MINI LOGO
+========================================================== */
+
+.mini-symbol {
+  width: 57px;
+  height: 63px;
+
+  flex: 0 0 auto;
+}
+
+.mini-top {
+  top: 5px;
+
+  width: 48px;
+  height: 7px;
+}
+
+.mini-bottom {
+  bottom: 4px;
+
+  width: 48px;
+  height: 7px;
+}
+
+.mini-columns {
+  position: absolute;
+
+  top: 13px;
+  bottom: 11px;
+
+  left: 12px;
+  right: 12px;
+
+  display: flex;
+  justify-content: space-between;
+}
+
+.mini-columns span {
+  width: 6px;
+
+  border-radius: 3px;
+
+  background: linear-gradient(#87b4ff, #236aff);
+}
+
+/* ==========================================================
+   LOGIN HEADING
+========================================================== */
+
+.login-heading h3 {
+  margin: 0;
+
+  color: #111f3a;
+
+  font-family: var(--fonte-login-serif), "Playfair Display", serif;
+
+  font-size: 27px;
+  font-weight: 600;
+
+  line-height: 1.25;
+}
+
+.login-heading h3 strong {
+  color: #193378;
+}
+
+.login-heading p {
+  margin: 8px 0 34px;
+
+  color: #607092;
+
+  font-size: 16px;
+
+  line-height: 1.45;
+}
+
+/* ==========================================================
+   FORM
+========================================================== */
+
+.login-form label {
+  display: block;
+
+  margin-bottom: 20px;
+}
+
+.login-form label > span {
+  display: block;
+
+  color: #101d37;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  margin-bottom: 8px;
+}
+
+.input-wrapper {
+  height: 55px;
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 0 17px;
+
+  background: rgba(255, 255, 255, 0.86);
+
+  border: 1px solid #cbd4e3;
+
+  border-radius: 9px;
+
+  color: #7b96ca;
+
+  transition: 180ms ease;
+}
+
+.input-wrapper:focus-within {
+  border-color: #4787ff;
+
+  box-shadow: 0 0 0 4px rgba(46, 119, 255, 0.1);
+}
+
+.input-wrapper input {
+  width: 100%;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  color: #1a2946;
+
+  font-size: 16px;
+}
+
+.input-wrapper input::placeholder {
+  color: #9aa8c2;
+}
+
+.password-button {
+  width: 32px;
+  height: 32px;
+
+  flex: 0 0 auto;
+
+  border: 0;
+  border-radius: 8px;
+
+  display: grid;
+  place-items: center;
+
+  cursor: pointer;
+
+  color: #6d86b5;
+
+  background: transparent;
+}
+
+/* mensagem de erro do login (acrescentada: o layout original não previa) */
+.form-erro {
+  margin: -6px 0 16px;
+  padding: 10px 14px;
+
+  border: 1px solid #f3c1c1;
+  border-radius: 9px;
+
+  background: #fdeeee;
+  color: #9b1c1c;
+
+  font-size: 14px;
+}
+
+/* ==========================================================
+   BUTTON
+========================================================== */
+
+.login-button {
+  width: 100%;
+  height: 60px;
+
+  margin-top: 5px;
+
+  border: 0;
+
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 20px;
+
+  color: white;
+
+  font-size: 17px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  background: linear-gradient(100deg, #0a2b60, #123e82 50%, #1563db);
+
+  box-shadow:
+    0 10px 30px rgba(20, 82, 181, 0.32),
+    0 0 17px rgba(32, 112, 255, 0.25);
+
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.login-button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 15px 35px rgba(20, 82, 181, 0.37),
+    0 0 24px rgba(32, 112, 255, 0.35);
+}
+
+.login-button:disabled {
+  cursor: progress;
+  opacity: 0.8;
+  transform: none;
+}
+
+/* ==========================================================
+   SIGNUP
+========================================================== */
+
+.signup {
+  margin-top: 29px;
+  padding: 27px 0 25px;
+
+  text-align: center;
+
+  border-top: 1px solid #dbe2ee;
+  border-bottom: 1px solid #dbe2ee;
+}
+
+.signup > span {
+  display: block;
+
+  color: #657493;
+
+  font-size: 14px;
+
+  margin-bottom: 5px;
+}
+
+.signup-link {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: #1163ef;
+
+  font-weight: 700;
+
+  text-decoration: none;
+}
+
+.signup-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ==========================================================
+   FOOTER
+========================================================== */
+
+.card-footer {
+  padding-top: 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  color: #788ba9;
+
+  font-size: 12px;
+}
+
+/* ==========================================================
+   DECORATIVE MESSAGES
+========================================================== */
+
+.side-top-message {
+  position: absolute;
+
+  top: 42px;
+  right: 46px;
+
+  z-index: 2;
+
+  display: flex;
+
+  gap: 20px;
+
+  color: #5b79a9;
+
+  letter-spacing: 3px;
+
+  font-size: 10px;
+
+  line-height: 1.7;
+}
+
+.side-top-message > span {
+  width: 32px;
+  height: 2px;
+
+  margin-top: 6px;
+
+  background: #698abf;
+}
+
+.side-bottom-message {
+  position: absolute;
+
+  right: 65px;
+  bottom: 48px;
+
+  display: flex;
+
+  gap: 18px;
+
+  color: #5b79a9;
+
+  letter-spacing: 3px;
+
+  font-size: 9px;
+
+  line-height: 1.7;
+}
+
+.side-bottom-message > span {
+  width: 34px;
+  height: 2px;
+
+  margin-top: 6px;
+
+  background: #5475a9;
+}
+
+.hero-bottom-message {
+  display: none;
+}
+
+/* frases decorativas da direita só cabem sem encostar no cartão em telas altas */
+@media (max-height: 959px) {
+  .side-top-message,
+  .side-bottom-message {
+    display: none;
+  }
+}
+
+/* ==========================================================
+   ACESSIBILIDADE (acrescentado)
+========================================================== */
+
+.login-button:focus-visible,
+.password-button:focus-visible,
+.signup-link:focus-visible {
+  outline: 2px solid #2874ff;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input-wrapper,
+  .login-button {
+    transition: none;
+  }
+
+  .login-button:hover {
+    transform: none;
+  }
+}
+
+/* ==========================================================
+   RESPONSIVO
+========================================================== */
+
+@media (max-width: 1180px) {
+  .simproc-login {
+    grid-template-columns: 54% 46%;
+  }
+
+  .features {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .simproc-login {
+    height: auto;
+    min-height: 100vh;
+
+    display: block;
+
+    background: #e7effb;
+  }
+
+  .simproc-hero {
+    min-height: 470px;
+  }
+
+  .hero-content {
+    padding: 40px 30px;
+  }
+
+  .brand {
+    margin-bottom: 35px;
+  }
+
+  .hero-copy h1 {
+    font-size: 52px;
+  }
+
+  .features {
+    display: none;
+  }
+
+  .login-side {
+    min-height: 680px;
+
+    padding: 45px 20px 70px;
+  }
+
+  .login-card {
+    width: min(100%, 520px);
+  }
+
+  .side-top-message,
+  .side-bottom-message {
+    display: none;
+  }
+}
+
+@media (max-width: 550px) {
+  .simproc-hero {
+    min-height: 410px;
+  }
+
+  .eyebrow {
+    margin-bottom: 30px;
+
+    font-size: 9px;
+
+    letter-spacing: 2px;
+  }
+
+  .brand-name {
+    font-size: 36px;
+  }
+
+  .brand-subtitle {
+    font-size: 11px;
+  }
+
+  .brand-symbol {
+    width: 55px;
+    height: 62px;
+  }
+
+  /* o símbolo menor precisa das peças proporcionais (o original só reduzia a caixa) */
+  .pillar-top {
+    width: 48px;
+    height: 7px;
+  }
+
+  .pillar-bottom {
+    width: 46px;
+    height: 7px;
+  }
+
+  .pillar-columns {
+    top: 12px;
+    bottom: 10px;
+    left: 12px;
+    right: 12px;
+  }
+
+  .pillar-columns span {
+    width: 6px;
+  }
+
+  .hero-copy h1 {
+    font-size: 43px;
+  }
+
+  .hero-copy h2 {
+    font-size: 26px;
+  }
+
+  .hero-copy p {
+    font-size: 14px;
+  }
+
+  .login-side {
+    padding: 30px 14px 50px;
+  }
+
+  .login-card {
+    border-radius: 22px;
+
+    padding: 32px 24px;
+  }
+
+  .card-brand strong {
+    font-size: 31px;
+  }
+
+  .login-heading h3 {
+    font-size: 24px;
+  }
+
+  .login-heading p br {
+    display: none;
+  }
+}
+
+
+/* ==========================================================
+   CADASTRO E AGUARDANDO (acrescentado)
+========================================================== */
+
+.campos-duplos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dica {
+  display: block;
+  margin-top: 6px;
+
+  color: #607092;
+  font-size: 12px;
+}
+
+.situacao-recusada {
+  margin: 0 0 24px;
+  padding: 12px 14px;
+
+  border: 1px solid #f3c1c1;
+  border-radius: 9px;
+
+  background: #fdeeee;
+  color: #9b1c1c;
+
+  font-size: 14px;
+}
+
+.botao-sair {
+  border: 0;
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  cursor: pointer;
+
+  color: #1163ef;
+  font-weight: 700;
+
+  background: none;
+}
+
+.botao-sair:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.botao-sair:focus-visible {
+  outline: 2px solid #2874ff;
+  outline-offset: 3px;
+}
+
+.texto-cartao {
+  margin: -18px 0 8px;
+
+  color: #607092;
+
+  font-size: 16px;
+  line-height: 1.45;
+}
