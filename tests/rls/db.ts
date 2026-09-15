@@ -3,19 +3,30 @@ import pg from "pg";
 
 export type Db = pg.Client;
 
+const SEQUENCIAS = ["public.oab_numero_seq", "public.processo_seq"];
+
 // Roda o teste numa transação e desfaz tudo no fim.
-// Atenção: sequências (OAB, processo) NÃO voltam com rollback — zerar antes
-// de abrir para a turma (ver README).
+// Sequências não voltam com rollback: o estado delas é guardado antes e
+// restaurado depois (setval não é transacional), para os testes não
+// consumirem números de OAB/processo reais.
 export async function emTransacao(fn: (db: Db) => Promise<void>): Promise<void> {
   const url = process.env.SUPABASE_DB_URL;
   if (!url) throw new Error("Falta SUPABASE_DB_URL no .env.local");
   const db = new pg.Client({ connectionString: url });
   await db.connect();
+  const estado = [];
+  for (const seq of SEQUENCIAS) {
+    const { rows } = await db.query(`select last_value, is_called from ${seq}`);
+    estado.push({ seq, ...rows[0] });
+  }
   try {
     await db.query("begin");
     await fn(db);
   } finally {
     await db.query("rollback").catch(() => {});
+    for (const { seq, last_value, is_called } of estado) {
+      await db.query("select setval($1, $2, $3)", [seq, last_value, is_called]);
+    }
     await db.end();
   }
 }

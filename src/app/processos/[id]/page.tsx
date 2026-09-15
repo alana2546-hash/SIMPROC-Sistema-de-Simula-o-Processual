@@ -25,10 +25,11 @@ export default async function PaginaProcesso({ params }: PageProps<"/processos/[
     supabase.rpc("advogados_do_processo", { p_processo: id }),
     supabase
       .from("movimentacoes")
-      .select("id, tipo, data, texto, prazo_final, publicada_em, anexos(id, nome_arquivo, tamanho_bytes)")
+      .select("id, tipo, data, texto, prazo_final, publicada_em, anexos(id, nome_arquivo, tamanho_bytes, ordem)")
       .eq("processo_id", id)
       .order("data", { ascending: false })
-      .order("publicada_em", { ascending: false }),
+      .order("publicada_em", { ascending: false })
+      .order("ordem", { referencedTable: "anexos" }),
   ]);
   if (!processo) notFound();
 

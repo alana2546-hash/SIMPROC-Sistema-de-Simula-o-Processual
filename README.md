@@ -24,10 +24,11 @@ Spec: [`docs/specs/2026-09-15-simproc-fase1-design.md`](docs/specs/2026-09-15-si
    update public.perfis set papel = 'admin', status = 'aprovado' where email = 'SEU-EMAIL';
    ```
 
-## Antes de abrir para a turma
+## Sequências (OAB e nº de processo)
 
-Os testes de permissão consomem números das sequências (sequência não volta com rollback).
-Zere as sequências **só enquanto não houver aluno aprovado nem processo real**:
+Os testes de permissão guardam o estado das sequências antes e restauram depois, então não
+consomem números reais. Se algum script manual consumir, dá para zerar, **só enquanto não houver
+aluno aprovado nem processo real**:
 
 ```sql
 select setval('public.oab_numero_seq', 1, false)

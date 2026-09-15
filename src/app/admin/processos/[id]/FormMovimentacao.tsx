@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { publicarMovimentacao } from "@/app/admin/acoes";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -11,22 +11,47 @@ import { Textarea } from "@/components/ui/textarea";
 import { TIPOS_MOVIMENTACAO, validarAnexo } from "@/lib/dominio/formularios";
 import { criarClienteNavegador } from "@/lib/supabase/navegador";
 
+function tamanho(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1).replace(".", ",")} MB`;
+}
+
 export function FormMovimentacao({ processoId, hoje }: { processoId: string; hoje: string }) {
   const router = useRouter();
+  const seletor = useRef<HTMLInputElement>(null);
   const [tipo, setTipo] = useState("despacho");
+  // Ordem da lista = ordem gravada: o 1º é a peça principal, os demais são anexos.
+  const [arquivos, setArquivos] = useState<File[]>([]);
   const [erro, setErro] = useState<string | null>(null);
   const [etapa, setEtapa] = useState<string | null>(null);
+
+  function adicionar(evento: ChangeEvent<HTMLInputElement>) {
+    const novos = Array.from(evento.target.files ?? []);
+    evento.target.value = ""; // permite escolher de novo, inclusive o mesmo arquivo
+    for (const arquivo of novos) {
+      const problema = validarAnexo(arquivo);
+      if (problema) return setErro(problema);
+    }
+    setErro(null);
+    setArquivos((atuais) => [...atuais, ...novos]);
+  }
+
+  function remover(indice: number) {
+    setArquivos((atuais) => atuais.filter((_, i) => i !== indice));
+  }
+
+  function subir(indice: number) {
+    setArquivos((atuais) => {
+      const lista = [...atuais];
+      [lista[indice - 1], lista[indice]] = [lista[indice], lista[indice - 1]];
+      return lista;
+    });
+  }
 
   async function enviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     const form = evento.currentTarget;
     const dados = new FormData(form);
-    const arquivos = dados.getAll("anexos").filter((a): a is File => a instanceof File && a.size > 0);
-
-    for (const arquivo of arquivos) {
-      const problema = validarAnexo(arquivo);
-      if (problema) return setErro(problema);
-    }
     setErro(null);
 
     // Os PDFs vão direto do navegador ao Storage; o servidor só registra.
@@ -61,6 +86,7 @@ export function FormMovimentacao({ processoId, hoje }: { processoId: string; hoj
 
       form.reset();
       setTipo("despacho");
+      setArquivos([]);
       router.refresh();
     } catch (falha) {
       if (enviados.length > 0) await supabase.storage.from("autos").remove(enviados);
@@ -102,10 +128,50 @@ export function FormMovimentacao({ processoId, hoje }: { processoId: string; hoj
           <Input id="prazo_final" name="prazo_final" type="date" />
         </div>
       )}
-      <div className="grid gap-1.5 sm:col-span-2">
-        <Label htmlFor="anexos">PDFs (até 20 MB cada)</Label>
-        <Input id="anexos" name="anexos" type="file" accept="application/pdf" multiple />
+
+      <div className="grid gap-2 sm:col-span-2">
+        <Label htmlFor="anexos">Documentos (PDF, até 20 MB cada)</Label>
+        {arquivos.length > 0 && (
+          <ol className="grid gap-1.5">
+            {arquivos.map((arquivo, i) => (
+              <li
+                key={`${arquivo.name}-${arquivo.size}-${arquivo.lastModified}-${i}`}
+                className="flex flex-wrap items-center gap-2 rounded border border-neutral-200 bg-neutral-50 px-2.5 py-1.5 text-sm"
+              >
+                <span className="font-mono text-neutral-500">{i + 1}.</span>
+                <span className="min-w-0 flex-1 break-all">{arquivo.name}</span>
+                <span className="text-xs text-neutral-500">
+                  {i === 0 ? "peça principal · " : "anexo · "}
+                  {tamanho(arquivo.size)}
+                </span>
+                {i > 0 && (
+                  <button type="button" onClick={() => subir(i)} className="text-xs text-[#1d2b45] underline">
+                    Subir
+                  </button>
+                )}
+                <button type="button" onClick={() => remover(i)} className="text-xs text-red-700 underline">
+                  Remover
+                </button>
+              </li>
+            ))}
+          </ol>
+        )}
+        <input
+          ref={seletor}
+          id="anexos"
+          type="file"
+          accept="application/pdf"
+          multiple
+          onChange={adicionar}
+          className="hidden"
+        />
+        <div>
+          <Button type="button" variant="outline" onClick={() => seletor.current?.click()}>
+            {arquivos.length === 0 ? "Adicionar PDF" : "Adicionar outro PDF"}
+          </Button>
+        </div>
       </div>
+
       {erro && (
         <Alert variant="destructive" className="sm:col-span-2">
           <AlertDescription>{erro}</AlertDescription>

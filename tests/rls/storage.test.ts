@@ -92,4 +92,34 @@ describe("storage dos autos", () => {
       await comoUsuario(db, c.alunoB);
       expect((await db.query("select id from public.anexos where movimentacao_id = $1", [movId])).rows).toHaveLength(0);
     }));
+
+  it("peça e anexos numa movimentação guardam a ordem enviada", () =>
+    emTransacao(async (db) => {
+      const c = await cenario(db);
+      const movId = randomUUID();
+      const pasta = `processos/${c.processoA}/${movId}`;
+      // nomes do Storage em ordem "errada" de propósito: a ordem vem da lista enviada
+      await objeto(db, `${pasta}/c.pdf`);
+      await objeto(db, `${pasta}/a.pdf`);
+      await objeto(db, `${pasta}/b.pdf`);
+
+      await comoUsuario(db, c.admin);
+      await db.query("select public.publicar_movimentacao($1, $2, 'juntada', '2026-09-15', 'Junta peça e documentos.', null, $3)", [
+        movId,
+        c.processoA,
+        JSON.stringify([
+          { nome_arquivo: "Pedido de prisão temporária.pdf", caminho: `${pasta}/c.pdf` },
+          { nome_arquivo: "Relatório de investigação.pdf", caminho: `${pasta}/a.pdf` },
+          { nome_arquivo: "Boletim de ocorrência.pdf", caminho: `${pasta}/b.pdf` },
+        ]),
+      ]);
+
+      await comoUsuario(db, c.alunoA);
+      const { rows } = await db.query("select nome_arquivo, ordem from public.anexos where movimentacao_id = $1 order by ordem", [movId]);
+      expect(rows).toEqual([
+        { nome_arquivo: "Pedido de prisão temporária.pdf", ordem: 0 },
+        { nome_arquivo: "Relatório de investigação.pdf", ordem: 1 },
+        { nome_arquivo: "Boletim de ocorrência.pdf", ordem: 2 },
+      ]);
+    }));
 });
