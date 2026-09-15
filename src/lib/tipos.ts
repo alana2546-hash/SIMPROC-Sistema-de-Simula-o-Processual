@@ -23,6 +23,14 @@ export type Processo = {
   criado_em: string;
 };
 
+// Advogado constituído como o aluno vê (função advogados_do_processo).
+export type Defensor = {
+  nome: string;
+  oab_numero: number | null;
+  cliente: string | null;
+  eu: boolean;
+};
+
 export type Anexo = {
   id: string;
   nome_arquivo: string;

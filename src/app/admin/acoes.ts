@@ -7,6 +7,7 @@ import { exigirAdmin } from "@/lib/auth/sessao";
 import { numeroCnjFicticio } from "@/lib/dominio/cnj";
 import { dataEmBrasilia } from "@/lib/dominio/datas";
 import { validarMovimentacao, validarProcesso } from "@/lib/dominio/formularios";
+import { clienteDefinido, investigadosDoProcesso } from "@/lib/dominio/partes";
 import { criarClienteServidor } from "@/lib/supabase/servidor";
 
 // Toda ação confere o admin de novo (não confia no layout). A RLS confere de
@@ -61,13 +62,44 @@ export async function editarProcesso(processoId: string, _anterior: EstadoForm, 
   return { ok: "Dados salvos." };
 }
 
+// Cliente escolhido no formulário, conferido contra os investigados do
+// processo. Vazio = cliente a definir.
+async function clienteEscolhido(
+  supabase: Awaited<ReturnType<typeof criarClienteServidor>>,
+  processoId: string,
+  formData: FormData,
+): Promise<string | null> {
+  const escolhido = String(formData.get("cliente") ?? "");
+  if (!escolhido) return null;
+  const { data } = await supabase.from("processos").select("reu").eq("id", processoId).maybeSingle();
+  const cliente = clienteDefinido(escolhido, investigadosDoProcesso(data?.reu ?? ""));
+  if (!cliente) throw new Error("O cliente escolhido não consta entre os investigados do processo.");
+  return cliente;
+}
+
 export async function vincularAdvogado(processoId: string, formData: FormData): Promise<void> {
   await exigirAdmin();
   const advogadoId = String(formData.get("advogado_id") ?? "");
   if (!advogadoId) return;
   const supabase = await criarClienteServidor();
-  const { error } = await supabase.from("processo_advogados").insert({ processo_id: processoId, advogado_id: advogadoId });
+  const cliente = await clienteEscolhido(supabase, processoId, formData);
+  const { error } = await supabase
+    .from("processo_advogados")
+    .insert({ processo_id: processoId, advogado_id: advogadoId, cliente });
   if (error) throw new Error(`Não foi possível constituir o advogado: ${error.message}`);
+  revalidatePath(`/admin/processos/${processoId}`);
+}
+
+export async function definirCliente(processoId: string, advogadoId: string, formData: FormData): Promise<void> {
+  await exigirAdmin();
+  const supabase = await criarClienteServidor();
+  const cliente = await clienteEscolhido(supabase, processoId, formData);
+  const { error } = await supabase
+    .from("processo_advogados")
+    .update({ cliente })
+    .eq("processo_id", processoId)
+    .eq("advogado_id", advogadoId);
+  if (error) throw new Error(`Não foi possível definir o cliente: ${error.message}`);
   revalidatePath(`/admin/processos/${processoId}`);
 }
 

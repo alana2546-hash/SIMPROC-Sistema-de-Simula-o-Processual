@@ -21,7 +21,7 @@ export function FormProcesso({
   const campos: Array<[keyof Processo, string, string]> = [
     ["classe", "Classe", "Ação Penal – Procedimento Comum Ordinário"],
     ["juizo", "Juízo", "1ª Vara Criminal da Comarca de SIMPROC"],
-    ["reu", "Réu", "Nome fictício"],
+    ["reu", "Réu", "Ana Souza, Bruno Lima e Carla Dias"],
     ["imputacao", "Imputação", "art. 157, §2º, II, do CP"],
   ];
   return (

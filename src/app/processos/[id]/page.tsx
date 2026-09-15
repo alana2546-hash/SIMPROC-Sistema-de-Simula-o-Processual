@@ -4,13 +4,13 @@ import { Cabecalho } from "@/components/Cabecalho";
 import { CapaProcesso } from "@/components/processo/CapaProcesso";
 import { FaixaPrazos } from "@/components/processo/FaixaPrazos";
 import { LinhaDoTempo } from "@/components/processo/LinhaDoTempo";
-import { IndiceDocumentos, SecaoAdvogados, SecaoPartes } from "@/components/processo/PainelProcesso";
+import { IndiceDocumentos, SecaoPartes } from "@/components/processo/PainelProcesso";
 import { exigirAdvogado } from "@/lib/auth/sessao";
 import { dataEmBrasilia } from "@/lib/dominio/datas";
 import { numerarEventos, ordenarRecentes, ultimaDecisao } from "@/lib/dominio/linha-do-tempo";
 import { ehNova } from "@/lib/dominio/novidades";
 import { criarClienteServidor } from "@/lib/supabase/servidor";
-import type { Movimentacao, Processo } from "@/lib/tipos";
+import type { Defensor, Movimentacao, Processo } from "@/lib/tipos";
 
 export default async function PaginaProcesso({ params }: PageProps<"/processos/[id]">) {
   const perfil = await exigirAdvogado();
@@ -59,8 +59,7 @@ export default async function PaginaProcesso({ params }: PageProps<"/processos/[
         <div className="mt-3 grid gap-10 lg:grid-cols-[minmax(0,1fr)_19rem]">
           <LinhaDoTempo movimentacoes={movs} numeros={numeros} novas={novas} />
           <aside className="grid content-start gap-7 border-t border-linha pt-7 lg:sticky lg:top-6 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-8">
-            <SecaoPartes processo={processo as Processo} />
-            <SecaoAdvogados advogados={advogados ?? []} />
+            <SecaoPartes processo={processo as Processo} advogados={(advogados ?? []) as Defensor[]} />
             <IndiceDocumentos movimentacoes={movs} numeros={numeros} />
           </aside>
         </div>

@@ -1,20 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { desvincularAdvogado, editarProcesso, vincularAdvogado } from "@/app/admin/acoes";
+import { editarProcesso } from "@/app/admin/acoes";
 import { FormProcesso } from "@/app/admin/processos/FormProcesso";
-import { BotaoEnviar } from "@/components/BotaoEnviar";
 import { CapaProcesso } from "@/components/processo/CapaProcesso";
 import { FaixaPrazos } from "@/components/processo/FaixaPrazos";
 import { LinhaDoTempo } from "@/components/processo/LinhaDoTempo";
 import { IndiceDocumentos } from "@/components/processo/PainelProcesso";
 import { dataEmBrasilia } from "@/lib/dominio/datas";
 import { numerarEventos, ordenarRecentes, ultimaDecisao } from "@/lib/dominio/linha-do-tempo";
-import { formatarOab } from "@/lib/dominio/oab";
 import { criarClienteServidor } from "@/lib/supabase/servidor";
 import type { Movimentacao, Perfil, Processo } from "@/lib/tipos";
+import { DefensoresAdmin, type VinculoAdmin } from "./DefensoresAdmin";
 import { NovaMovimentacao } from "./NovaMovimentacao";
-
-type Vinculo = { advogado_id: string; perfis: Pick<Perfil, "nome" | "oab_numero"> };
 
 export default async function ProcessoAdmin({ params }: PageProps<"/admin/processos/[id]">) {
   const { id } = await params;
@@ -24,7 +21,7 @@ export default async function ProcessoAdmin({ params }: PageProps<"/admin/proces
   if (!processo) notFound();
 
   const [{ data: vinculos }, { data: aprovados }, { data: movimentacoes }] = await Promise.all([
-    supabase.from("processo_advogados").select("advogado_id, perfis(nome, oab_numero)").eq("processo_id", id),
+    supabase.from("processo_advogados").select("advogado_id, cliente, perfis(nome, oab_numero)").eq("processo_id", id),
     supabase.from("perfis").select("id, nome, oab_numero").eq("papel", "aluno").eq("status", "aprovado").order("nome"),
     supabase
       .from("movimentacoes")
@@ -35,7 +32,9 @@ export default async function ProcessoAdmin({ params }: PageProps<"/admin/proces
       .order("ordem", { referencedTable: "anexos" }),
   ]);
 
-  const constituidos = (vinculos ?? []) as unknown as Vinculo[];
+  const constituidos = ((vinculos ?? []) as unknown as VinculoAdmin[]).sort((a, b) =>
+    a.perfis.nome.localeCompare(b.perfis.nome, "pt-BR"),
+  );
   const idsConstituidos = new Set(constituidos.map((v) => v.advogado_id));
   const disponiveis = ((aprovados ?? []) as Array<Pick<Perfil, "id" | "nome" | "oab_numero">>).filter(
     (p) => !idsConstituidos.has(p.id),
@@ -65,51 +64,7 @@ export default async function ProcessoAdmin({ params }: PageProps<"/admin/proces
         </div>
 
         <aside className="grid content-start gap-7 border-t border-linha pt-7 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-8">
-          <section>
-            <h2 className="font-serif text-lg font-semibold">Advogados constituídos</h2>
-            {constituidos.length === 0 ? (
-              <p className="mt-1 text-sm text-tinta-suave">Nenhum advogado constituído.</p>
-            ) : (
-              <ul className="mt-3 grid gap-2">
-                {constituidos.map((v) => (
-                  <li key={v.advogado_id} className="flex flex-wrap items-center justify-between gap-2 text-sm">
-                    <span className="leading-tight">
-                      <span className="block">{v.perfis.nome}</span>
-                      {v.perfis.oab_numero && <span className="text-tinta-suave">{formatarOab(v.perfis.oab_numero)}</span>}
-                    </span>
-                    <form action={desvincularAdvogado.bind(null, id, v.advogado_id)}>
-                      <BotaoEnviar variant="outline" enviando="Desvinculando…">
-                        Desvincular
-                      </BotaoEnviar>
-                    </form>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {disponiveis.length > 0 ? (
-              <form action={vincularAdvogado.bind(null, id)} className="mt-4 grid gap-2">
-                <label htmlFor="advogado_id" className="text-sm text-tinta-suave">
-                  Constituir advogado aprovado
-                </label>
-                <select
-                  id="advogado_id"
-                  name="advogado_id"
-                  required
-                  className="h-9 rounded-lg border border-linha bg-folha px-2.5 text-sm"
-                >
-                  {disponiveis.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.nome}
-                      {p.oab_numero ? `, ${formatarOab(p.oab_numero)}` : ""}
-                    </option>
-                  ))}
-                </select>
-                <BotaoEnviar enviando="Constituindo…">Constituir</BotaoEnviar>
-              </form>
-            ) : (
-              <p className="mt-3 text-xs text-tinta-suave">Nenhum outro advogado aprovado disponível.</p>
-            )}
-          </section>
+          <DefensoresAdmin processoId={id} reu={(processo as Processo).reu} vinculos={constituidos} disponiveis={disponiveis} />
 
           <details className="group">
             <summary className="cursor-pointer list-none font-serif text-lg font-semibold marker:hidden">
