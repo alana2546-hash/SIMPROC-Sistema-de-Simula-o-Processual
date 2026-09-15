@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SIMPROC — Sistema de Simulação Processual
 
-## Getting Started
+Painel processual simulado para a liga de Direito Processual Penal. Os alunos pedem inscrição
+como advogados; o admin defere, cria processos, constitui as equipes e publica movimentações.
+Cada equipe só enxerga o próprio processo, e isso é garantido pelo banco (RLS).
 
-First, run the development server:
+Spec: [`docs/specs/2026-09-15-simproc-fase1-design.md`](docs/specs/2026-09-15-simproc-fase1-design.md)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Configuração (uma vez)
+
+1. **Supabase**: crie o projeto (região São Paulo).
+   - Authentication → Sign In / Providers → Email → desligue **Confirm email**.
+2. **`.env.local`** na raiz (nunca versionado), a partir de `.env.example`:
+   - `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (Project Settings → API)
+   - `SUPABASE_DB_URL`: Connect → **Session pooler**. Se a senha tiver caractere especial,
+     use URL-encoding (`@` → `%40`, `#` → `%23`...).
+3. `npm install`
+4. `npm run db:push`: aplica as migrations.
+5. `npm run test:rls`: testes de permissão contra o banco real, cada um em transação com
+   ROLLBACK.
+6. `npm run dev` e peça inscrição em http://localhost:3000/cadastro com **o seu** e-mail.
+7. Torne-se admin (Supabase → SQL Editor):
+   ```sql
+   update public.perfis set papel = 'admin', status = 'aprovado' where email = 'SEU-EMAIL';
+   ```
+
+## Antes de abrir para a turma
+
+Os testes de permissão consomem números das sequências (sequência não volta com rollback).
+Zere as sequências **só enquanto não houver aluno aprovado nem processo real**:
+
+```sql
+select setval('public.oab_numero_seq', 1, false)
+where not exists (select 1 from public.perfis where oab_numero is not null);
+
+select setval('public.processo_seq', 1, false)
+where not exists (select 1 from public.processos);
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Comandos
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Comando | O quê |
+|---|---|
+| `npm run dev` | desenvolvimento |
+| `npm test` | regras de domínio (CNJ, OAB, prazos, novidades, validações) |
+| `npm run test:rls` | permissões no banco real |
+| `npm run db:push` | aplica migrations pendentes |
+| `npm run build` | build de produção |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Fora da fase 1 (v2)
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Juntada de peças pelo aluno, recuperação de senha por e-mail (hoje o admin redefine pelo painel
+do Supabase), edição de movimentação (hoje: excluir e publicar de novo), filtro de advogados,
+próximo prazo no cartão do painel, aviso por e-mail.
