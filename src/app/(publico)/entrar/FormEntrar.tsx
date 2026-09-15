@@ -17,7 +17,7 @@ export function FormEntrar({ voltar }: { voltar: string }) {
         <input type="hidden" name="voltar" value={voltar} />
         <div className="grid gap-1.5">
           <Label htmlFor="email">E-mail</Label>
-          <Input id="email" name="email" type="email" autoComplete="email" required className="h-10" />
+          <Input id="email" name="email" type="email" autoComplete="email" required className="h-10" defaultValue={estado.valores?.email} />
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor="senha">Senha</Label>

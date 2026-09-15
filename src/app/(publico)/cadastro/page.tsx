@@ -20,21 +20,21 @@ export default function PaginaCadastro() {
       <form action={acao} className="mt-6 grid gap-4">
         <div className="grid gap-1.5">
           <Label htmlFor="nome">Nome completo</Label>
-          <Input id="nome" name="nome" autoComplete="name" required className="h-10" />
+          <Input id="nome" name="nome" autoComplete="name" required className="h-10" defaultValue={estado.valores?.nome} />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="grid gap-1.5">
             <Label htmlFor="matricula">Matrícula</Label>
-            <Input id="matricula" name="matricula" required className="h-10" />
+            <Input id="matricula" name="matricula" required className="h-10" defaultValue={estado.valores?.matricula} />
           </div>
           <div className="grid gap-1.5">
             <Label htmlFor="semestre">Semestre</Label>
-            <Input id="semestre" name="semestre" placeholder="ex.: 5º" required className="h-10" />
+            <Input id="semestre" name="semestre" placeholder="ex.: 5º" required className="h-10" defaultValue={estado.valores?.semestre} />
           </div>
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor="email">E-mail</Label>
-          <Input id="email" name="email" type="email" autoComplete="email" required className="h-10" />
+          <Input id="email" name="email" type="email" autoComplete="email" required className="h-10" defaultValue={estado.valores?.email} />
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor="senha">Senha</Label>
